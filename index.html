@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Juan & Maria | December 25, 2026</title>
+<!-- =====================================================================
+     WEDDING WEBSITE — SINGLE FILE FRONT-END
+     Replace every "TODO" comment with your real content before publishing.
+     See SETUP-GUIDE.md for exactly where every asset (photos, the 240
+     intro frames, and the background music file) needs to live relative
+     to this file once it's on GitHub Pages.
+===================================================================== -->
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Great+Vibes&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+
+<!-- Tailwind (Play CDN) -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          velvet: {
+            green: '#123524',
+            greendeep: '#0B241A',
+            maroon: '#4A1620',
+            maroondeep: '#320F17',
+          },
+          rosegold: '#C48D77',
+          gold: '#CBA135',
+          goldlight: '#E6C866',
+          ivory: '#FBF7F0',
+          espresso: '#3B2A22',
+        },
+        fontFamily: {
+          serif: ['"Cormorant Garamond"', 'serif'],
+          script: ['"Great Vibes"', 'cursive'],
+          sans: ['"Jost"', 'sans-serif'],
+        },
+      },
+    },
+  };
+</script>
+
+<!-- Alpine.js -->
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+
+<style>
+  html { scroll-behavior: smooth; }
+  body { background: var(--tw-ivory, #FBF7F0); font-family: 'Cormorant Garamond', serif; }
+
+  /* ---------- Intro overlay ---------- */
+  #intro-overlay {
+    position: fixed; inset: 0; z-index: 100;
+    background: radial-gradient(circle at 50% 40%, #1a4a32 0%, #0B241A 70%);
+  }
+  #intro-canvas { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+  /* ---------- Glass sticky header ---------- */
+  .glass-header {
+    background: rgba(11, 36, 26, 0.55);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(203, 161, 53, 0.25);
+  }
+
+  /* ---------- Snowfall (decorative, subtle) ---------- */
+  .snowfield { position: fixed; inset: 0; pointer-events: none; z-index: 40; overflow: hidden; }
+  .snowflake {
+    position: absolute; top: -5vh; border-radius: 9999px;
+    background: rgba(251, 247, 240, 0.85);
+    animation-name: snow-fall; animation-timing-function: linear; animation-iteration-count: infinite;
+  }
+  @keyframes snow-fall {
+    from { transform: translateY(-5vh) translateX(0); }
+    to   { transform: translateY(105vh) translateX(20px); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .snowflake { display: none; }
+  }
+
+  /* ---------- Small holly divider ---------- */
+  .sprig-divider { color: #CBA135; opacity: 0.85; }
+
+  /* ---------- Audio FAB ---------- */
+  .audio-fab {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+  }
+
+  /* ---------- RSVP transition container ---------- */
+  .rsvp-panel { min-height: 420px; }
+
+  ::selection { background: #CBA135; color: #0B241A; }
+  [x-cloak] { display: none !important; }
+</style>
+</head>
+
+<body class="bg-velvet-ivory text-espresso" x-data="siteApp()" x-init="init()" x-cloak>
+
+  <!-- =====================================================================
+       INTRO — 240-FRAME ENVELOPE OPENING (canvas, JS-stepped)
+  ===================================================================== -->
+  <div id="intro-overlay"
+       x-data="introApp()" x-init="init()"
+       x-show="!siteRevealed"
+       x-transition:leave="transition ease-in duration-700"
+       x-transition:leave-start="opacity-100"
+       x-transition:leave-end="opacity-0"
+       class="flex items-center justify-center">
+
+    <!-- The frame sequence -->
+    <canvas id="intro-canvas" x-ref="introCanvas" class="cursor-pointer" @click="play()"></canvas>
+
+    <!-- Tap-to-open prompt, shown until the guest taps -->
+    <div x-show="!started" class="absolute inset-0 flex flex-col items-center justify-center text-center px-6" @click="play()">
+      <p class="font-script text-goldlight text-5xl md:text-6xl mb-3" style="text-shadow:0 2px 12px rgba(0,0,0,0.5)">Juan &amp; Maria</p>
+      <p class="font-sans text-ivory/80 tracking-wide text-sm mb-8">request the pleasure of your company</p>
+      <div class="w-14 h-14 rounded-full border border-gold/70 flex items-center justify-center"
+           :class="ready ? 'animate-pulse' : 'opacity-40'">
+        <span class="text-gold text-xl">✦</span>
+      </div>
+      <p class="font-sans text-ivory/60 text-xs mt-4 tracking-wide" x-text="ready ? 'tap to open' : 'preparing your invitation…'"></p>
+    </div>
+
+    <!-- The invitation card that slides out to fill the frame once the frame sequence finishes -->
+    <div x-show="cardVisible"
+         x-transition:enter="transition ease-out duration-700"
+         x-transition:enter-start="opacity-0 scale-75"
+         x-transition:enter-end="opacity-100 scale-100"
+         class="absolute inset-0 bg-velvet-ivory flex flex-col items-center justify-center text-center px-8">
+      <p class="font-sans text-gold tracking-[0.2em] text-xs mb-4">together with their families</p>
+      <p class="font-script text-espresso text-6xl md:text-7xl mb-4">Juan &amp; Maria</p>
+      <p class="font-serif italic text-espresso/80 text-lg mb-1">invite you to celebrate their wedding</p>
+      <p class="font-sans text-rosegold tracking-[0.15em] text-sm mt-3">December 25, 2026</p>
+    </div>
+  </div>
+
+  <!-- Snowfall, decorative -->
+  <div class="snowfield" x-show="siteRevealed">
+    <template x-for="(flake, i) in snowflakes" :key="i">
+      <div class="snowflake"
+           :style="`left:${flake.left}%; width:${flake.size}px; height:${flake.size}px; opacity:${flake.opacity}; animation-duration:${flake.duration}s; animation-delay:${flake.delay}s;`"></div>
+    </template>
+  </div>
+
+  <!-- Background music -->
+  <audio x-ref="bgAudio" loop preload="none">
+    <!-- TODO: replace with your actual filename. See SETUP-GUIDE.md -->
+    <source src="assets/audio/background-music.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- =====================================================================
+       STICKY GLASS HEADER
+  ===================================================================== -->
+  <header class="glass-header fixed top-0 left-0 right-0 z-30 transition-opacity duration-500"
+           :class="scrolled ? 'opacity-100' : 'opacity-0 pointer-events-none'">
+    <nav class="max-w-5xl mx-auto flex items-center justify-center gap-10 py-4 font-sans text-sm tracking-wide">
+      <a href="#our-story" class="text-ivory/90 hover:text-gold transition-colors">Our Story</a>
+      <a href="#ceremony" class="text-ivory/90 hover:text-gold transition-colors">Details</a>
+      <a href="#rsvp" class="text-ivory/90 hover:text-gold transition-colors">RSVP</a>
+    </nav>
+  </header>
+
+  <!-- =====================================================================
+       HERO
+  ===================================================================== -->
+  <section class="relative h-screen w-full flex items-end justify-center text-center overflow-hidden">
+    <!-- TODO: replace with your cover photo -->
+    <div class="absolute inset-0 bg-cover bg-center" style="background-image:url('assets/photos/cover.jpg');"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-velvet-greendeep via-velvet-greendeep/40 to-transparent"></div>
+    <div class="relative z-10 pb-20 px-6">
+      <p class="font-sans text-gold tracking-[0.3em] text-xs mb-4">We're getting married</p>
+      <h1 class="font-script text-ivory text-7xl md:text-8xl leading-none mb-4" style="text-shadow:0 4px 20px rgba(0,0,0,0.4)">Juan &amp; Maria</h1>
+      <p class="font-serif italic text-ivory/90 text-xl">December 25, 2026 &middot; Manila, Philippines</p>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       CEREMONY — image left / details right
+  ===================================================================== -->
+  <section id="ceremony" class="grid md:grid-cols-2 min-h-[70vh]">
+    <div class="order-1 md:order-1">
+      <!-- TODO: replace with your ceremony venue photo -->
+      <div class="h-72 md:h-full w-full bg-cover bg-center border-b-4 md:border-b-0 md:border-r-4 border-rosegold/60"
+           style="background-image:url('assets/photos/ceremony-venue.jpg');"></div>
+    </div>
+    <div class="order-2 md:order-2 bg-velvet-green flex flex-col justify-center px-8 md:px-16 py-16 text-center md:text-left">
+      <p class="font-sans text-gold tracking-[0.2em] text-xs mb-3">The Ceremony</p>
+      <h2 class="font-serif text-ivory text-4xl mb-4">Holy Trinity Church</h2>
+      <p class="font-serif text-ivory/85 text-lg mb-1">December 25, 2026</p>
+      <p class="font-serif text-ivory/85 text-lg mb-6">4:00 in the afternoon</p>
+      <p class="font-sans text-ivory/70 text-sm mb-6 leading-relaxed">
+        <!-- TODO: replace with your actual address -->
+        123 Sampaguita Street, Makati City, Metro Manila
+      </p>
+      <a href="https://maps.google.com/?q=TODO-your-venue-address" target="_blank" rel="noopener"
+         class="inline-flex items-center gap-2 self-center md:self-start font-sans text-sm text-gold border border-gold/60 rounded-full px-5 py-2 hover:bg-gold hover:text-velvet-greendeep transition-colors">
+        View on Google Maps
+      </a>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       RECEPTION — mirrored: details left / image right
+  ===================================================================== -->
+  <section id="reception" class="grid md:grid-cols-2 min-h-[70vh]">
+    <div class="order-2 md:order-1 bg-velvet-maroon flex flex-col justify-center px-8 md:px-16 py-16 text-center md:text-left">
+      <p class="font-sans text-gold tracking-[0.2em] text-xs mb-3">The Reception</p>
+      <h2 class="font-serif text-ivory text-4xl mb-4">The Manor Garden Hall</h2>
+      <p class="font-serif text-ivory/85 text-lg mb-1">December 25, 2026</p>
+      <p class="font-serif text-ivory/85 text-lg mb-6">6:30 in the evening</p>
+      <p class="font-sans text-ivory/70 text-sm mb-6 leading-relaxed">
+        <!-- TODO: replace with your actual address -->
+        456 Poinsettia Avenue, Makati City, Metro Manila
+      </p>
+      <a href="https://maps.google.com/?q=TODO-your-reception-address" target="_blank" rel="noopener"
+         class="inline-flex items-center gap-2 self-center md:self-start font-sans text-sm text-gold border border-gold/60 rounded-full px-5 py-2 hover:bg-gold hover:text-velvet-maroondeep transition-colors">
+        View on Google Maps
+      </a>
+    </div>
+    <div class="order-1 md:order-2">
+      <!-- TODO: replace with your reception venue photo -->
+      <div class="h-72 md:h-full w-full bg-cover bg-center border-b-4 md:border-b-0 md:border-l-4 border-rosegold/60"
+           style="background-image:url('assets/photos/reception-venue.jpg');"></div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       OUR STORY
+  ===================================================================== -->
+  <section id="our-story" class="bg-velvet-ivory py-24 px-6">
+    <div class="max-w-4xl mx-auto text-center">
+      <p class="font-script text-rosegold text-5xl mb-6">Our Story</p>
+      <p class="font-serif text-espresso/85 text-lg leading-relaxed max-w-2xl mx-auto mb-14">
+        <!-- TODO: replace with your real story, a few short paragraphs work best -->
+        We met on a rainy afternoon in college, both reaching for the same umbrella stand.
+        What started as a shared walk to the jeepney stop became years of quiet Sunday
+        dinners, long drives with no destination, and the slow, certain realization that
+        home is a person, not a place. This Christmas, we're asking you to help us
+        celebrate the next chapter.
+      </p>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <!-- TODO: replace with your own photos (add/remove blocks as needed) -->
+        <div class="aspect-[3/4] bg-cover bg-center rounded-sm" style="background-image:url('assets/photos/story-1.jpg');"></div>
+        <div class="aspect-[3/4] bg-cover bg-center rounded-sm" style="background-image:url('assets/photos/story-2.jpg');"></div>
+        <div class="aspect-[3/4] bg-cover bg-center rounded-sm hidden md:block" style="background-image:url('assets/photos/story-3.jpg');"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       DRESS CODE
+  ===================================================================== -->
+  <section class="bg-velvet-green py-24 px-6">
+    <div class="max-w-3xl mx-auto text-center">
+      <p class="font-sans text-gold tracking-[0.2em] text-xs mb-3">Attire</p>
+      <h2 class="font-serif text-ivory text-4xl mb-6">Dress Code</h2>
+      <p class="font-sans text-ivory/70 text-sm mb-10 leading-relaxed">
+        <!-- TODO: adjust wording to match your actual dress code -->
+        Formal attire in the colors of the season. Gentlemen, a dark suit; ladies, a
+        floor-length gown. We ask that you please avoid bright white and pure red.
+      </p>
+      <div class="flex justify-center gap-4 mb-10">
+        <!-- Color palette swatches — edit hex values to match your actual palette -->
+        <div class="w-14 h-14 rounded-full border-2 border-ivory/30" style="background:#123524" title="Velvet Green"></div>
+        <div class="w-14 h-14 rounded-full border-2 border-ivory/30" style="background:#4A1620" title="Velvet Maroon"></div>
+        <div class="w-14 h-14 rounded-full border-2 border-ivory/30" style="background:#CBA135" title="Gold"></div>
+        <div class="w-14 h-14 rounded-full border-2 border-ivory/30" style="background:#C48D77" title="Rose Gold"></div>
+        <div class="w-14 h-14 rounded-full border-2 border-ivory/30" style="background:#FBF7F0" title="Ivory"></div>
+      </div>
+      <div class="grid grid-cols-2 gap-4 max-w-md mx-auto">
+        <!-- TODO: replace with real reference images for men's/women's attire -->
+        <div class="aspect-[3/4] bg-cover bg-center rounded-sm" style="background-image:url('assets/photos/dresscode-1.jpg');"></div>
+        <div class="aspect-[3/4] bg-cover bg-center rounded-sm" style="background-image:url('assets/photos/dresscode-2.jpg');"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       RSVP
+  ===================================================================== -->
+  <section id="rsvp" class="bg-velvet-ivory py-24 px-6" x-data="rsvpApp()" x-init="init()">
+    <div class="max-w-xl mx-auto text-center mb-10">
+      <p class="font-script text-rosegold text-5xl mb-3">RSVP</p>
+      <p class="font-sans text-espresso/60 text-sm">Kindly respond using the link sent to your household.</p>
+    </div>
+
+    <div class="max-w-xl mx-auto bg-white/60 border border-rosegold/30 rounded-lg shadow-sm p-8 md:p-10 rsvp-panel">
+
+      <!-- Loading -->
+      <div x-show="loading" class="flex flex-col items-center justify-center h-full py-16">
+        <div class="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p class="font-sans text-sm text-espresso/60">Loading your invitation…</p>
+      </div>
+
+      <!-- No code in URL -->
+      <div x-show="!loading && error === 'no_code'" class="text-center py-12">
+        <p class="font-serif text-lg text-espresso/80">This RSVP link is missing your household code.</p>
+        <p class="font-sans text-sm text-espresso/50 mt-2">Please use the personalized link sent to you.</p>
+      </div>
+
+      <!-- Code not found -->
+      <div x-show="!loading && error === 'not_found'" class="text-center py-12">
+        <p class="font-serif text-lg text-espresso/80">We couldn't find an invitation for this link.</p>
+        <p class="font-sans text-sm text-espresso/50 mt-2">Please contact the Groom and Bride for a new link.</p>
+      </div>
+
+      <!-- Network / unknown error -->
+      <div x-show="!loading && (error === 'network' || error === 'unknown' || error === 'submit_failed')" class="text-center py-12">
+        <p class="font-serif text-lg text-espresso/80">Something went wrong loading your invitation.</p>
+        <p class="font-sans text-sm text-espresso/50 mt-2">Please refresh the page, or contact the Groom and Bride.</p>
+      </div>
+
+      <!-- Past cutoff — read only -->
+      <div x-show="!loading && !error && isPastCutoff && !submitted" class="text-center py-12">
+        <p class="font-serif text-lg text-espresso/80">RSVP Closed</p>
+        <p class="font-sans text-sm text-espresso/50 mt-2">Please contact the Groom and Bride.</p>
+      </div>
+
+      <!-- Thank you (just submitted this session) -->
+      <div x-show="!loading && !error && submitted"
+           x-transition:enter="transition ease-out duration-700"
+           x-transition:enter-start="opacity-0"
+           x-transition:enter-end="opacity-100"
+           class="flex flex-col items-center justify-center text-center h-full py-16">
+        <p class="sprig-divider text-2xl mb-4">❧</p>
+        <p class="font-script text-4xl text-rosegold mb-3">Thank You</p>
+        <p class="font-serif text-espresso/80 leading-relaxed max-w-sm">
+          Your response has been received with love. We can't wait to celebrate this
+          Christmas with you.
+        </p>
+        <p class="font-sans text-xs text-espresso/40 mt-6">You can return to this link to update your response before the RSVP deadline.</p>
+      </div>
+
+      <!-- The form itself -->
+      <div x-show="!loading && !error && !isPastCutoff && !submitted && household">
+        <p class="font-serif text-xl text-espresso mb-1" x-text="household?.name"></p>
+        <p class="font-sans text-xs text-espresso/50 mb-8">Please respond for everyone in your household.</p>
+
+        <div class="space-y-5 text-left">
+          <template x-for="member in household?.members || []" :key="member.id">
+            <div class="border border-rosegold/20 rounded-md p-4">
+              <p class="font-serif text-lg text-espresso mb-3" x-text="member.name"></p>
+              <div class="flex gap-3 mb-3">
+                <button type="button" @click="attendance[member.id] = 'attending'"
+                        class="flex-1 py-2 rounded-full font-sans text-sm border transition-colors"
+                        :class="attendance[member.id] === 'attending' ? 'bg-velvet-green text-ivory border-velvet-green' : 'border-espresso/20 text-espresso/60 hover:border-velvet-green'">
+                  Joyfully Accepts
+                </button>
+                <button type="button" @click="attendance[member.id] = 'declined'"
+                        class="flex-1 py-2 rounded-full font-sans text-sm border transition-colors"
+                        :class="attendance[member.id] === 'declined' ? 'bg-velvet-maroon text-ivory border-velvet-maroon' : 'border-espresso/20 text-espresso/60 hover:border-velvet-maroon'">
+                  Regretfully Declines
+                </button>
+              </div>
+
+              <!-- Transport, only for flagged-eligible members who are attending -->
+              <div x-show="member.transportEligible && attendance[member.id] === 'attending'" class="flex items-center justify-between mt-2 pt-3 border-t border-rosegold/15">
+                <span class="font-sans text-sm text-espresso/70">Do you require transport service?</span>
+                <button type="button" @click="transport[member.id] = !transport[member.id]"
+                        class="w-11 h-6 rounded-full relative transition-colors"
+                        :class="transport[member.id] ? 'bg-gold' : 'bg-espresso/15'">
+                  <span class="absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all" :class="transport[member.id] ? 'left-5' : 'left-0.5'"></span>
+                </button>
+              </div>
+            </div>
+          </template>
+
+          <!-- Flexible household: optional named +1 -->
+          <div x-show="household?.type === 'flexible'" class="border border-rosegold/20 rounded-md p-4">
+            <p class="font-serif text-lg text-espresso mb-1">Bringing a guest?</p>
+            <p class="font-sans text-xs text-espresso/50 mb-3">You may bring one guest. Leave blank if not.</p>
+            <input type="text" x-model="plusOneName" placeholder="Guest's full name"
+                   class="w-full font-sans text-sm border border-espresso/20 rounded-md px-3 py-2 focus:outline-none focus:border-gold">
+          </div>
+        </div>
+
+        <button type="button" @click="submit()" :disabled="!allAnswered || submitting"
+                class="w-full mt-8 py-3 rounded-full font-sans text-sm tracking-wide transition-colors"
+                :class="allAnswered && !submitting ? 'bg-gold text-velvet-greendeep hover:bg-goldlight' : 'bg-espresso/10 text-espresso/40 cursor-not-allowed'">
+          <span x-show="!submitting" x-text="household?.submitted ? 'Update RSVP' : 'Send RSVP'"></span>
+          <span x-show="submitting">Sending…</span>
+        </button>
+        <p x-show="household?.submitted" class="font-sans text-xs text-espresso/40 mt-3">You've already responded — feel free to update it below.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       COUNTDOWN
+  ===================================================================== -->
+  <section class="bg-velvet-maroon py-20 px-6 text-center">
+    <p class="font-sans text-gold tracking-[0.2em] text-xs mb-6">Counting down to</p>
+    <p class="font-script text-ivory text-4xl mb-10">December 25, 2026</p>
+    <div class="flex justify-center gap-6 md:gap-10 font-sans">
+      <div><p class="text-4xl md:text-5xl text-ivory" x-text="countdown.days"></p><p class="text-xs text-ivory/50 mt-1">days</p></div>
+      <div><p class="text-4xl md:text-5xl text-ivory" x-text="countdown.hours"></p><p class="text-xs text-ivory/50 mt-1">hours</p></div>
+      <div><p class="text-4xl md:text-5xl text-ivory" x-text="countdown.minutes"></p><p class="text-xs text-ivory/50 mt-1">minutes</p></div>
+      <div><p class="text-4xl md:text-5xl text-ivory" x-text="countdown.seconds"></p><p class="text-xs text-ivory/50 mt-1">seconds</p></div>
+    </div>
+  </section>
+
+  <footer class="bg-velvet-greendeep py-10 text-center">
+    <p class="font-script text-gold text-2xl">Juan &amp; Maria</p>
+  </footer>
+
+  <!-- =====================================================================
+       AUDIO FAB
+  ===================================================================== -->
+  <button @click="toggleAudio()"
+          class="audio-fab fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-velvet-green border border-gold/50 flex items-center justify-center"
+          aria-label="Toggle background music">
+    <svg x-show="audioPlaying" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#CBA135" stroke-width="1.6" class="w-6 h-6">
+      <path d="M9 18V5l12-2v13" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+    </svg>
+    <svg x-show="!audioPlaying" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#CBA135" stroke-width="1.6" class="w-6 h-6">
+      <path d="M9 18V5l12-2v13" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+      <line x1="3" y1="3" x2="21" y2="21" stroke-linecap="round"/>
+    </svg>
+  </button>
+
+<script>
+  // =====================================================================
+  // CONFIG — the handful of values you're most likely to need to change
+  // =====================================================================
+  const WEDDING_DATE_ISO   = '2026-12-25T16:00:00+08:00'; // TODO: your ceremony date/time
+  const INTRO_FRAME_COUNT  = 240;
+  const INTRO_FPS          = 30;
+  const INTRO_FRAME_PATH   = (n) => `assets/intro-frames/frame-${String(n).padStart(3, '0')}.jpg`;
+
+  // Paste the Web App URL you get after deploying AppsScript.gs (see SETUP-GUIDE.md)
+  const WEBAPP_URL = 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
+
+  // =====================================================================
+  // Top-level site behavior: intro reveal state, header, audio, snow, countdown
+  // =====================================================================
+  function siteApp() {
+    return {
+      siteRevealed: false,
+      scrolled: false,
+      audioPlaying: false,
+      snowflakes: [],
+      countdown: { days: 0, hours: 0, minutes: 0, seconds: 0 },
+
+      init() {
+        // header appears once the guest scrolls roughly past the hero
+        window.addEventListener('scroll', () => {
+          this.scrolled = window.scrollY > window.innerHeight * 0.7;
+        });
+
+        // generate snowflakes once (avoid re-randomizing on every re-render)
+        for (let i = 0; i < 40; i++) {
+          this.snowflakes.push({
+            left: Math.random() * 100,
+            size: 3 + Math.random() * 5,
+            opacity: 0.3 + Math.random() * 0.5,
+            duration: 8 + Math.random() * 10,
+            delay: Math.random() * 10,
+          });
+        }
+
+        this.startCountdown();
+
+        // lock page scroll while the intro overlay is showing
+        document.body.style.overflow = 'hidden';
+        window.addEventListener('reveal-site', () => {
+          this.siteRevealed = true;
+          document.body.style.overflow = '';
+        });
+
+        // the intro overlay dispatches this on the guest's first tap
+        window.addEventListener('start-audio', () => {
+          const el = this.$refs.bgAudio;
+          if (!el) return;
+          el.volume = 0.6;
+          el.play().then(() => { this.audioPlaying = true; }).catch(() => {});
+        });
+      },
+
+      startCountdown() {
+        const target = new Date(WEDDING_DATE_ISO).getTime();
+        const tick = () => {
+          const diff = target - Date.now();
+          if (diff <= 0) { this.countdown = { days: 0, hours: 0, minutes: 0, seconds: 0 }; return; }
+          this.countdown.days = Math.floor(diff / 86400000);
+          this.countdown.hours = Math.floor((diff % 86400000) / 3600000);
+          this.countdown.minutes = Math.floor((diff % 3600000) / 60000);
+          this.countdown.seconds = Math.floor((diff % 60000) / 1000);
+        };
+        tick();
+        setInterval(tick, 1000);
+      },
+
+      toggleAudio() {
+        const el = this.$refs.bgAudio;
+        if (!el) return;
+        if (this.audioPlaying) { el.pause(); this.audioPlaying = false; }
+        else { el.play().catch(() => {}); this.audioPlaying = true; }
+      },
+    };
+  }
+
+  // =====================================================================
+  // Intro: preload + play the 240-frame envelope-opening sequence
+  // =====================================================================
+  function introApp() {
+    return {
+      ready: false,       // all frames preloaded
+      started: false,     // guest has tapped
+      finished: false,    // frame sequence finished playing
+      cardVisible: false, // the invitation card is showing
+      frames: [],
+      currentFrame: 0,
+      reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+
+      init() {
+        const canvas = this.$refs.introCanvas;
+        const ctx = canvas.getContext('2d');
+        this.ctx = ctx;
+
+        const loadPromises = [];
+        for (let i = 1; i <= INTRO_FRAME_COUNT; i++) {
+          const img = new Image();
+          img.src = INTRO_FRAME_PATH(i);
+          this.frames.push(img);
+          loadPromises.push(new Promise((resolve) => {
+            img.onload = resolve;
+            img.onerror = resolve; // don't block the whole sequence on one missing frame
+          }));
+        }
+
+        // draw the very first frame the moment it's available, so the cover
+        // isn't blank while the rest preload in the background
+        this.frames[0].onload = () => this.drawFrame(0);
+
+        Promise.all(loadPromises).then(() => {
+          this.ready = true;
+          this.drawFrame(0);
+        });
+      },
+
+      drawFrame(i) {
+        const img = this.frames[i];
+        const canvas = this.$refs.introCanvas;
+        if (!img || !img.complete || img.naturalWidth === 0) return;
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        this.ctx.drawImage(img, 0, 0);
+      },
+
+      play() {
+        if (!this.ready || this.started) return;
+        this.started = true;
+        this.$dispatch('start-audio');
+
+        if (this.reducedMotion) {
+          this.drawFrame(INTRO_FRAME_COUNT - 1);
+          this.onSequenceDone();
+          return;
+        }
+
+        const interval = 1000 / INTRO_FPS;
+        let last = performance.now();
+        const step = (now) => {
+          if (now - last >= interval) {
+            last = now;
+            this.currentFrame++;
+            if (this.currentFrame >= INTRO_FRAME_COUNT) {
+              this.drawFrame(INTRO_FRAME_COUNT - 1);
+              this.onSequenceDone();
+              return;
+            }
+            this.drawFrame(this.currentFrame);
+          }
+          if (!this.finished) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      },
+
+      onSequenceDone() {
+        this.finished = true;
+        this.cardVisible = true;
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('reveal-site'));
+        }, 1400);
+      },
+    };
+  }
+
+  // =====================================================================
+  // RSVP module — talks to the Apps Script Web App
+  // =====================================================================
+  function rsvpApp() {
+    return {
+      loading: true,
+      error: '',
+      householdCode: '',
+      household: null,
+      cutoffDate: null,
+      isPastCutoff: false,
+      attendance: {},
+      transport: {},
+      plusOneName: '',
+      submitting: false,
+      submitted: false,
+
+      async init() {
+        const params = new URLSearchParams(window.location.search);
+        this.householdCode = (params.get('code') || '').trim().toUpperCase();
+
+        if (!this.householdCode) {
+          this.error = 'no_code';
+          this.loading = false;
+          return;
+        }
+
+        try {
+          const url = `${WEBAPP_URL}?action=getHousehold&code=${encodeURIComponent(this.householdCode)}`;
+          const res = await fetch(url);
+          const data = await res.json();
+
+          if (data.status === 'not_found') {
+            this.error = 'not_found';
+          } else if (data.status === 'ok') {
+            this.household = data.household;
+            this.cutoffDate = data.cutoffDate;
+            this.isPastCutoff = !!data.isPastCutoff;
+
+            if (data.household.responses) {
+              this.attendance = data.household.responses.attendance || {};
+              this.transport = data.household.responses.transport || {};
+              this.plusOneName = data.household.responses.plusOneName || '';
+            }
+          } else {
+            this.error = 'unknown';
+          }
+        } catch (e) {
+          this.error = 'network';
+        }
+        this.loading = false;
+      },
+
+      get allAnswered() {
+        if (!this.household || !this.household.members) return false;
+        return this.household.members.every((m) => this.attendance[m.id] === 'attending' || this.attendance[m.id] === 'declined');
+      },
+
+      async submit() {
+        if (!this.allAnswered || this.submitting) return;
+        this.submitting = true;
+        this.error = '';
+
+        try {
+          const payload = {
+            action: 'submitRSVP',
+            code: this.householdCode,
+            attendance: this.attendance,
+            transport: this.transport,
+            plusOneName: this.plusOneName,
+          };
+          // Content-Type text/plain avoids a CORS preflight request, which
+          // Apps Script web apps cannot respond to. Do not change this to
+          // application/json.
+          const res = await fetch(WEBAPP_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload),
+          });
+          const data = await res.json();
+
+          if (data.status === 'ok') {
+            this.submitted = true;
+          } else if (data.status === 'closed') {
+            this.isPastCutoff = true;
+          } else {
+            this.error = 'submit_failed';
+          }
+        } catch (e) {
+          this.error = 'network';
+        }
+        this.submitting = false;
+      },
+    };
+  }
+</script>
+</body>
+</html>
