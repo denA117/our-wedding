@@ -116,8 +116,8 @@
     <canvas id="intro-canvas" x-ref="introCanvas" class="cursor-pointer" @click="play()"></canvas>
 
     <!-- Tap-to-open prompt, shown until the guest taps -->
-    <div x-show="!started" class="absolute inset-0 flex flex-col items-center justify-center text-center px-6" @click="play()">
-      <div class="w-14 h-14 rounded-full border border-gold/70 flex items-center justify-center"
+    <div x-show="!started" class="absolute inset-0 flex flex-col items-center justify-center text-center px-6 translate-y-[100px]" @click="play()">
+      <div class="w-14 h-14 rounded-full border border-gold/70 flex items-center justify-center mt-[50px]"
            :class="ready ? 'animate-pulse' : 'opacity-40'">
         <span class="text-gold text-xl">✦</span>
       </div>
