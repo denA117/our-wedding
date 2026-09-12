@@ -117,11 +117,7 @@
 
     <!-- Tap-to-open prompt, shown until the guest taps -->
     <div x-show="!started" class="absolute inset-0 flex flex-col items-center justify-center text-center px-6 translate-y-[30px]" @click="play()">
-      <div class="w-14 h-14 rounded-full border border-gold/70 flex items-center justify-center"
-           :class="ready ? 'animate-pulse' : 'opacity-40'">
-        <span class="text-gold text-xl">✦</span>
-      </div>
-      <p class="font-sans text-ivory/60 text-xs mt-4 tracking-wide" x-text="ready ? 'tap to open' : 'preparing your invitation…'"></p>
+      <p class="font-sans text-ivory/70 text-sm tracking-[0.15em]" :class="ready ? 'animate-pulse' : 'opacity-40'" x-text="ready ? 'tap to open' : 'preparing your invitation…'"></p>
     </div>
 
     <!-- The invitation card that slides out to fill the frame once the frame sequence finishes -->
