@@ -116,8 +116,8 @@
     <canvas id="intro-canvas" x-ref="introCanvas" class="cursor-pointer" @click="play()"></canvas>
 
     <!-- Tap-to-open prompt, shown until the guest taps -->
-    <div x-show="!started" class="absolute inset-0 flex flex-col items-center justify-center text-center px-6 translate-y-[100px]" @click="play()">
-      <div class="w-14 h-14 rounded-full border border-gold/70 flex items-center justify-center mt-[50px]"
+    <div x-show="!started" class="absolute inset-0 flex flex-col items-center justify-center text-center px-6 translate-y-[30px]" @click="play()">
+      <div class="w-14 h-14 rounded-full border border-gold/70 flex items-center justify-center"
            :class="ready ? 'animate-pulse' : 'opacity-40'">
         <span class="text-gold text-xl">✦</span>
       </div>
@@ -434,7 +434,7 @@
   const INTRO_FRAME_PATH   = (n) => `assets/intro-frames/frame-${String(n).padStart(3, '0')}.jpg`;
 
   // Paste the Web App URL you get after deploying AppsScript.gs (see SETUP-GUIDE.md)
-  const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbz1x9VDnbey29gUl9jdOvYZ8Q1CihFYEs-fN0b0lUZd6bU9sjrKUDqihMx_CrvaqKKx/exec';
+  const WEBAPP_URL = 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
 
   // =====================================================================
   // Top-level site behavior: intro reveal state, header, audio, snow, countdown
