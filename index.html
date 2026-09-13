@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Juan & Maria | December 25, 2026</title>
+<title>Deniel & Joyce | December 27, 2026</title>
 <!-- =====================================================================
      WEDDING WEBSITE — SINGLE FILE FRONT-END
      Replace every "TODO" comment with your real content before publishing.
@@ -68,19 +68,23 @@
     border-bottom: 1px solid rgba(203, 161, 53, 0.25);
   }
 
-  /* ---------- Snowfall (decorative, subtle) ---------- */
-  .snowfield { position: fixed; inset: 0; pointer-events: none; z-index: 40; overflow: hidden; }
-  .snowflake {
-    position: absolute; top: -5vh; border-radius: 9999px;
-    background: rgba(251, 247, 240, 0.85);
-    animation-name: snow-fall; animation-timing-function: linear; animation-iteration-count: infinite;
+  /* ---------- Fireflies / fairy lights (decorative, subtle) ---------- */
+  .fireflyfield { position: fixed; inset: 0; pointer-events: none; z-index: 40; overflow: hidden; }
+  .firefly {
+    position: absolute; border-radius: 9999px;
+    background: radial-gradient(circle, rgba(230,200,102,1) 0%, rgba(203,161,53,0.55) 55%, rgba(203,161,53,0) 100%);
+    animation-name: firefly-drift; animation-timing-function: ease-in-out; animation-iteration-count: infinite;
   }
-  @keyframes snow-fall {
-    from { transform: translateY(-5vh) translateX(0); }
-    to   { transform: translateY(105vh) translateX(20px); }
+  @keyframes firefly-drift {
+    0%   { transform: translate(0, 0) scale(1); opacity: 0.15; }
+    20%  { opacity: 0.9; }
+    45%  { transform: translate(var(--dx1), var(--dy1)) scale(1.15); opacity: 0.3; }
+    65%  { opacity: 0.85; }
+    85%  { transform: translate(var(--dx2), var(--dy2)) scale(0.9); opacity: 0.2; }
+    100% { transform: translate(0, 0) scale(1); opacity: 0.15; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .snowflake { display: none; }
+    .firefly { display: none; }
   }
 
   /* ---------- Small holly divider ---------- */
@@ -116,7 +120,7 @@
     <canvas id="intro-canvas" x-ref="introCanvas" class="cursor-pointer" @click="play()"></canvas>
 
     <!-- Tap-to-open prompt, shown until the guest taps -->
-    <div x-show="!started" class="absolute inset-0 flex flex-col items-center justify-center text-center px-6 translate-y-[80px]" @click="play()">
+    <div x-show="!started" class="absolute inset-0 flex flex-col items-center justify-center text-center px-6 translate-y-[50px] translate-x-[20px]" @click="play()">
       <p class="font-sans text-ivory/70 text-sm tracking-[0.15em]" :class="ready ? 'animate-pulse' : 'opacity-40'" x-text="ready ? 'tap to open' : 'preparing your invitation…'"></p>
     </div>
 
@@ -133,11 +137,11 @@
     </div>
   </div>
 
-  <!-- Snowfall, decorative -->
-  <div class="snowfield" x-show="siteRevealed">
-    <template x-for="(flake, i) in snowflakes" :key="i">
-      <div class="snowflake"
-           :style="`left:${flake.left}%; width:${flake.size}px; height:${flake.size}px; opacity:${flake.opacity}; animation-duration:${flake.duration}s; animation-delay:${flake.delay}s;`"></div>
+  <!-- Fireflies / fairy lights, decorative -->
+  <div class="fireflyfield" x-show="siteRevealed">
+    <template x-for="(bug, i) in fireflies" :key="i">
+      <div class="firefly"
+           :style="`left:${bug.left}%; top:${bug.top}%; width:${bug.size}px; height:${bug.size}px; box-shadow:0 0 ${bug.size * 1.5}px ${bug.size * 0.5}px rgba(203,161,53,0.45); animation-duration:${bug.duration}s; animation-delay:${bug.delay}s; --dx1:${bug.dx1}px; --dy1:${bug.dy1}px; --dx2:${bug.dx2}px; --dy2:${bug.dy2}px;`"></div>
     </template>
   </div>
 
@@ -168,8 +172,8 @@
     <div class="absolute inset-0 bg-gradient-to-t from-velvet-greendeep via-velvet-greendeep/40 to-transparent"></div>
     <div class="relative z-10 pb-20 px-6">
       <p class="font-sans text-gold tracking-[0.3em] text-xs mb-4">We're getting married</p>
-      <h1 class="font-script text-ivory text-7xl md:text-8xl leading-none mb-4" style="text-shadow:0 4px 20px rgba(0,0,0,0.4)">Juan &amp; Maria</h1>
-      <p class="font-serif italic text-ivory/90 text-xl">December 25, 2026 &middot; Manila, Philippines</p>
+      <h1 class="font-script text-ivory text-7xl md:text-8xl leading-none mb-4" style="text-shadow:0 4px 20px rgba(0,0,0,0.4)">Deniel &amp; Joyce</h1>
+      <p class="font-serif italic text-ivory/90 text-xl">December 27, 2026 &middot; Batangas, Philippines</p>
     </div>
   </section>
 
@@ -184,14 +188,12 @@
     </div>
     <div class="order-2 md:order-2 bg-velvet-green flex flex-col justify-center px-8 md:px-16 py-16 text-center md:text-left">
       <p class="font-sans text-gold tracking-[0.2em] text-xs mb-3">The Ceremony</p>
-      <h2 class="font-serif text-ivory text-4xl mb-4">Holy Trinity Church</h2>
-      <p class="font-serif text-ivory/85 text-lg mb-1">December 25, 2026</p>
-      <p class="font-serif text-ivory/85 text-lg mb-6">4:00 in the afternoon</p>
+      <h2 class="font-serif text-ivory text-4xl mb-4">Caleruega Chapel of Transfiguration</h2>
+      <p class="font-serif text-ivory/85 text-lg mb-6">3:00 in the Afternoon</p>
       <p class="font-sans text-ivory/70 text-sm mb-6 leading-relaxed">
-        <!-- TODO: replace with your actual address -->
-        123 Sampaguita Street, Makati City, Metro Manila
+        4231 Caleruega Road, Nasugbu, Batangas, Philippines
       </p>
-      <a href="https://maps.google.com/?q=TODO-your-venue-address" target="_blank" rel="noopener"
+      <a href="https://maps.app.goo.gl/tAerW1eHadQmwEG68" target="_blank" rel="noopener"
          class="inline-flex items-center gap-2 self-center md:self-start font-sans text-sm text-gold border border-gold/60 rounded-full px-5 py-2 hover:bg-gold hover:text-velvet-greendeep transition-colors">
         View on Google Maps
       </a>
@@ -204,14 +206,12 @@
   <section id="reception" class="grid md:grid-cols-2 min-h-[70vh]">
     <div class="order-2 md:order-1 bg-velvet-maroon flex flex-col justify-center px-8 md:px-16 py-16 text-center md:text-left">
       <p class="font-sans text-gold tracking-[0.2em] text-xs mb-3">The Reception</p>
-      <h2 class="font-serif text-ivory text-4xl mb-4">The Manor Garden Hall</h2>
-      <p class="font-serif text-ivory/85 text-lg mb-1">December 25, 2026</p>
-      <p class="font-serif text-ivory/85 text-lg mb-6">6:30 in the evening</p>
+      <h2 class="font-serif text-ivory text-4xl mb-4">Kayama Mountain Resort &amp; Events Place</h2>
+      <p class="font-serif text-ivory/85 text-lg mb-6">5:00 in the Afternoon</p>
       <p class="font-sans text-ivory/70 text-sm mb-6 leading-relaxed">
-        <!-- TODO: replace with your actual address -->
-        456 Poinsettia Avenue, Makati City, Metro Manila
+        Sitio Kaytuyang, Nasugbu, 4231 Batangas, Philippines
       </p>
-      <a href="https://maps.google.com/?q=TODO-your-reception-address" target="_blank" rel="noopener"
+      <a href="https://maps.app.goo.gl/Am2ZzzUgGyHvCrQDA" target="_blank" rel="noopener"
          class="inline-flex items-center gap-2 self-center md:self-start font-sans text-sm text-gold border border-gold/60 rounded-full px-5 py-2 hover:bg-gold hover:text-velvet-maroondeep transition-colors">
         View on Google Maps
       </a>
@@ -230,12 +230,8 @@
     <div class="max-w-4xl mx-auto text-center">
       <p class="font-script text-rosegold text-5xl mb-6">Our Story</p>
       <p class="font-serif text-espresso/85 text-lg leading-relaxed max-w-2xl mx-auto mb-14">
-        <!-- TODO: replace with your real story, a few short paragraphs work best -->
-        We met on a rainy afternoon in college, both reaching for the same umbrella stand.
-        What started as a shared walk to the jeepney stop became years of quiet Sunday
-        dinners, long drives with no destination, and the slow, certain realization that
-        home is a person, not a place. This Christmas, we're asking you to help us
-        celebrate the next chapter.
+        <!-- TODO: replace with your real story -->
+        Our story will be shared here soon.
       </p>
       <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
         <!-- TODO: replace with your own photos (add/remove blocks as needed) -->
@@ -254,17 +250,17 @@
       <p class="font-sans text-gold tracking-[0.2em] text-xs mb-3">Attire</p>
       <h2 class="font-serif text-ivory text-4xl mb-6">Dress Code</h2>
       <p class="font-sans text-ivory/70 text-sm mb-10 leading-relaxed">
-        <!-- TODO: adjust wording to match your actual dress code -->
-        Formal attire in the colors of the season. Gentlemen, a dark suit; ladies, a
-        floor-length gown. We ask that you please avoid bright white and pure red.
+        Formal attire is requested for both ladies and gentlemen. Please refer to the
+        color palette shown below. We kindly ask that you please refrain from wearing
+        white, as this color is reserved for the bride.
       </p>
       <div class="flex justify-center gap-4 mb-10">
-        <!-- Color palette swatches — edit hex values to match your actual palette -->
-        <div class="w-14 h-14 rounded-full border-2 border-ivory/30" style="background:#123524" title="Velvet Green"></div>
-        <div class="w-14 h-14 rounded-full border-2 border-ivory/30" style="background:#4A1620" title="Velvet Maroon"></div>
-        <div class="w-14 h-14 rounded-full border-2 border-ivory/30" style="background:#CBA135" title="Gold"></div>
-        <div class="w-14 h-14 rounded-full border-2 border-ivory/30" style="background:#C48D77" title="Rose Gold"></div>
-        <div class="w-14 h-14 rounded-full border-2 border-ivory/30" style="background:#FBF7F0" title="Ivory"></div>
+        <!-- Dress code palette — edit hex values if you'd like different shades -->
+        <div class="w-14 h-14 rounded-full border-2 border-ivory/30" style="background:#4A3728" title="Deep Espresso"></div>
+        <div class="w-14 h-14 rounded-full border-2 border-ivory/30" style="background:#6B4F3B" title="Chocolate Brown"></div>
+        <div class="w-14 h-14 rounded-full border-2 border-ivory/30" style="background:#8B6F47" title="Warm Brown"></div>
+        <div class="w-14 h-14 rounded-full border-2 border-ivory/30" style="background:#A67C52" title="Tan"></div>
+        <div class="w-14 h-14 rounded-full border-2 border-ivory/30" style="background:#D4A017" title="Mustard Yellow"></div>
       </div>
       <div class="grid grid-cols-2 gap-4 max-w-md mx-auto">
         <!-- TODO: replace with real reference images for men's/women's attire -->
@@ -281,6 +277,7 @@
     <div class="max-w-xl mx-auto text-center mb-10">
       <p class="font-script text-rosegold text-5xl mb-3">RSVP</p>
       <p class="font-sans text-espresso/60 text-sm">Kindly respond using the link sent to your household.</p>
+      <p x-show="formattedCutoff" class="font-sans text-rosegold text-xs mt-2 tracking-wide">Please RSVP by <span x-text="formattedCutoff"></span></p>
     </div>
 
     <div class="max-w-xl mx-auto bg-white/60 border border-rosegold/30 rounded-lg shadow-sm p-8 md:p-10 rsvp-panel">
@@ -390,7 +387,7 @@
   ===================================================================== -->
   <section class="bg-velvet-maroon py-20 px-6 text-center">
     <p class="font-sans text-gold tracking-[0.2em] text-xs mb-6">Counting down to</p>
-    <p class="font-script text-ivory text-4xl mb-10">December 25, 2026</p>
+    <p class="font-script text-ivory text-4xl mb-10">December 27, 2026</p>
     <div class="flex justify-center gap-6 md:gap-10 font-sans">
       <div><p class="text-4xl md:text-5xl text-ivory" x-text="countdown.days"></p><p class="text-xs text-ivory/50 mt-1">days</p></div>
       <div><p class="text-4xl md:text-5xl text-ivory" x-text="countdown.hours"></p><p class="text-xs text-ivory/50 mt-1">hours</p></div>
@@ -400,7 +397,7 @@
   </section>
 
   <footer class="bg-velvet-greendeep py-10 text-center">
-    <p class="font-script text-gold text-2xl">Juan &amp; Maria</p>
+    <p class="font-script text-gold text-2xl">Deniel &amp; Joyce</p>
   </footer>
 
   <!-- =====================================================================
@@ -424,7 +421,7 @@
   // =====================================================================
   // CONFIG — the handful of values you're most likely to need to change
   // =====================================================================
-  const WEDDING_DATE_ISO   = '2026-12-25T16:00:00+08:00'; // TODO: your ceremony date/time
+  const WEDDING_DATE_ISO   = '2026-12-27T15:00:00+08:00'; // Ceremony date/time — Caleruega, 3:00 PM
   const INTRO_FRAME_COUNT  = 240;
   const INTRO_FPS          = 30;
   const INTRO_FRAME_PATH   = (n) => `assets/intro-frames/frame-${String(n).padStart(3, '0')}.jpg`;
@@ -433,14 +430,14 @@
   const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbz1x9VDnbey29gUl9jdOvYZ8Q1CihFYEs-fN0b0lUZd6bU9sjrKUDqihMx_CrvaqKKx/exec';
 
   // =====================================================================
-  // Top-level site behavior: intro reveal state, header, audio, snow, countdown
+  // Top-level site behavior: intro reveal state, header, audio, fireflies, countdown
   // =====================================================================
   function siteApp() {
     return {
       siteRevealed: false,
       scrolled: false,
       audioPlaying: false,
-      snowflakes: [],
+      fireflies: [],
       countdown: { days: 0, hours: 0, minutes: 0, seconds: 0 },
 
       init() {
@@ -449,14 +446,18 @@
           this.scrolled = window.scrollY > window.innerHeight * 0.7;
         });
 
-        // generate snowflakes once (avoid re-randomizing on every re-render)
-        for (let i = 0; i < 40; i++) {
-          this.snowflakes.push({
+        // generate fireflies once (avoid re-randomizing on every re-render)
+        for (let i = 0; i < 25; i++) {
+          this.fireflies.push({
             left: Math.random() * 100,
-            size: 3 + Math.random() * 5,
-            opacity: 0.3 + Math.random() * 0.5,
-            duration: 8 + Math.random() * 10,
-            delay: Math.random() * 10,
+            top: Math.random() * 100,
+            size: 3 + Math.random() * 4,
+            duration: 9 + Math.random() * 10,
+            delay: Math.random() * 8,
+            dx1: Math.round(Math.random() * 100 - 50),
+            dy1: Math.round(Math.random() * 100 - 50),
+            dx2: Math.round(Math.random() * 100 - 50),
+            dy2: Math.round(Math.random() * 100 - 50),
           });
         }
 
@@ -639,6 +640,13 @@
           this.error = 'network';
         }
         this.loading = false;
+      },
+
+      get formattedCutoff() {
+        if (!this.cutoffDate) return '';
+        const d = new Date(this.cutoffDate);
+        if (isNaN(d.getTime())) return '';
+        return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
       },
 
       get allAnswered() {
