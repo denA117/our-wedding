@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Deniel & Joyce | December 27, 2026</title>
+<title>Juan & Maria | December 25, 2026</title>
 <!-- =====================================================================
      WEDDING WEBSITE — SINGLE FILE FRONT-END
      Replace every "TODO" comment with your real content before publishing.
@@ -116,7 +116,7 @@
     <canvas id="intro-canvas" x-ref="introCanvas" class="cursor-pointer" @click="play()"></canvas>
 
     <!-- Tap-to-open prompt, shown until the guest taps -->
-    <div x-show="!started" class="absolute inset-0 flex flex-col items-center justify-center text-center px-6 translate-y-[80px]" @click="play()">
+    <div x-show="!started" class="absolute inset-0 flex flex-col items-center justify-center text-center px-6 translate-y-[50px]" @click="play()">
       <p class="font-sans text-ivory/70 text-sm tracking-[0.15em]" :class="ready ? 'animate-pulse' : 'opacity-40'" x-text="ready ? 'tap to open' : 'preparing your invitation…'"></p>
     </div>
 
@@ -125,10 +125,10 @@
          x-transition:enter="transition ease-out duration-700"
          x-transition:enter-start="opacity-0 scale-75"
          x-transition:enter-end="opacity-100 scale-100"
-         class="absolute inset-0 bg-velvet-ivory flex flex-col items-center justify-center text-center px-8">
-      <p class="font-sans text-gold tracking-[0.2em] text-xs mb-4">together with their families</p>
-      <p class="font-script text-espresso text-6xl md:text-7xl mb-4">Deniel &amp; Joyce</p>
-      <p class="font-serif italic text-espresso/80 text-lg mb-1">invite you to celebrate their wedding</p>
+         class="absolute inset-0 flex flex-col items-center justify-center text-center px-8">
+      <p class="font-sans text-goldlight tracking-[0.2em] text-xs mb-4">together with their families</p>
+      <p class="font-script text-ivory text-6xl md:text-7xl mb-4" style="text-shadow:0 2px 14px rgba(0,0,0,0.55)">Deniel &amp; Joyce</p>
+      <p class="font-serif italic text-ivory/90 text-lg mb-1" style="text-shadow:0 1px 8px rgba(0,0,0,0.45)">invite you to celebrate their wedding</p>
       <p class="font-sans text-rosegold tracking-[0.15em] text-sm mt-3">December 27, 2026</p>
     </div>
   </div>
@@ -168,8 +168,8 @@
     <div class="absolute inset-0 bg-gradient-to-t from-velvet-greendeep via-velvet-greendeep/40 to-transparent"></div>
     <div class="relative z-10 pb-20 px-6">
       <p class="font-sans text-gold tracking-[0.3em] text-xs mb-4">We're getting married</p>
-      <h1 class="font-script text-ivory text-7xl md:text-8xl leading-none mb-4" style="text-shadow:0 4px 20px rgba(0,0,0,0.4)">Deniel &amp; Joyce</h1>
-      <p class="font-serif italic text-ivory/90 text-xl">December 27, 2026 &middot; Batangas, Philippines</p>
+      <h1 class="font-script text-ivory text-7xl md:text-8xl leading-none mb-4" style="text-shadow:0 4px 20px rgba(0,0,0,0.4)">Juan &amp; Maria</h1>
+      <p class="font-serif italic text-ivory/90 text-xl">December 25, 2026 &middot; Manila, Philippines</p>
     </div>
   </section>
 
