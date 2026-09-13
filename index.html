@@ -120,7 +120,7 @@
     <canvas id="intro-canvas" x-ref="introCanvas" class="cursor-pointer" @click="play()"></canvas>
 
     <!-- Tap-to-open prompt, shown until the guest taps -->
-    <div x-show="!started" class="absolute inset-0 flex flex-col items-center justify-center text-center px-6 translate-y-[50px] translate-x-[20px]" @click="play()">
+    <div x-show="!started" class="absolute inset-0 flex flex-col items-center justify-center text-center px-6 translate-y-[80px] translate-x-[10px]" @click="play()">
       <p class="font-sans text-ivory/70 text-sm tracking-[0.15em]" :class="ready ? 'animate-pulse' : 'opacity-40'" x-text="ready ? 'tap to open' : 'preparing your invitation…'"></p>
     </div>
 
@@ -447,7 +447,7 @@
         });
 
         // generate fireflies once (avoid re-randomizing on every re-render)
-        for (let i = 0; i < 25; i++) {
+        for (let i = 0; i < 15; i++) {
           this.fireflies.push({
             left: Math.random() * 100,
             top: Math.random() * 100,
