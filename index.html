@@ -447,9 +447,16 @@
         });
 
         // generate fireflies once (avoid re-randomizing on every re-render)
+        // biased toward the left/right thirds of the screen, sparser in the middle
+        const edgeBiasedLeft = () => {
+          const r = Math.random();
+          if (r < 0.45) return Math.random() * 28;            // left edge
+          if (r < 0.90) return 72 + Math.random() * 28;        // right edge
+          return 28 + Math.random() * 44;                      // occasional middle
+        };
         for (let i = 0; i < 15; i++) {
           this.fireflies.push({
-            left: Math.random() * 100,
+            left: edgeBiasedLeft(),
             top: Math.random() * 100,
             size: 3 + Math.random() * 4,
             duration: 9 + Math.random() * 10,
